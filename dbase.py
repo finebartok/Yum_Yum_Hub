@@ -53,13 +53,15 @@ class Order(db.Model):
     order_id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey('users.user_id'), nullable=False)
     restaurant_id = Column(Integer, ForeignKey('restaurants.restaurant_id'), nullable=False)
-    total_amount = Column(DECIMAL, nullable=False)
-    status = Column(String, nullable=False)
+    status = Column(String, nullable=False, default='pending')
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    total_amount = Column(DECIMAL, nullable=False, default=0)
 
     user = db.relationship('User', back_populates='orders')
     restaurant = db.relationship('Restaurant', back_populates='orders')
+    items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
 
 class OrderItem(db.Model):
     __tablename__ = 'order_items'
@@ -68,6 +70,9 @@ class OrderItem(db.Model):
     menu_item_id = Column(Integer, ForeignKey('menu_items.menu_item_id'), nullable=False)
     quantity = Column(Integer, nullable=False)
     price = Column(DECIMAL, nullable=False)
+
+    order = db.relationship('Order', back_populates='items')
+    menu_item = db.relationship('MenuItem')
 
 class Subscription(db.Model):
     __tablename__ = 'subscriptions'
